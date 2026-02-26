@@ -1,12 +1,12 @@
-// swift-tools-version: 5.10
+// swift-tools-version: 6.2
 import PackageDescription
 
 let package = Package(
     name: "VoicePlan",
     platforms: [
-        .iOS(.v17),
-        .macOS(.v14),
-        .visionOS(.v1)
+        .iOS(.v26),
+        .macOS(.v26),
+        .visionOS(.v2)
     ],
     products: [
         .library(name: "VoicePlan", targets: ["VoicePlan"])

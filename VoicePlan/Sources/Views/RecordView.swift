@@ -23,9 +23,15 @@ struct RecordView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .hoverEffect(.highlight)
                 }
             }
         }
+        .sensoryFeedback(.impact, trigger: recorder.isRecording)
+        .sensoryFeedback(.impact, trigger: showResults)
+        #if os(visionOS)
+        .glassBackgroundEffect()
+        #endif
     }
     
     // MARK: - Recording View
@@ -51,7 +57,7 @@ struct RecordView: View {
                         .font(.body)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        .glassEffect(.regular)
                 }
                 .frame(maxHeight: 150)
                 .padding(.horizontal)
@@ -59,6 +65,7 @@ struct RecordView: View {
                 Text("Listening...")
                     .font(.subheadline)
                     .foregroundStyle(.tertiary)
+                    .glassEffect(.regular)
             }
             
             Spacer()
@@ -117,6 +124,8 @@ struct RecordView: View {
                 }
             }
             .buttonStyle(.plain)
+            .glassEffect(.circular)
+            .hoverEffect(.highlight)
             
             Text(recorder.isRecording ? "Tap to stop" : "Tap to record")
                 .font(.caption)
@@ -140,7 +149,7 @@ struct RecordView: View {
                     .font(.body)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.gray.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+                    .glassEffect(.regular)
             }
             .padding(.horizontal)
             
@@ -177,6 +186,7 @@ struct RecordView: View {
                 .background(Color(hex: "4A90D9"), in: RoundedRectangle(cornerRadius: 14))
                 .foregroundStyle(.white)
             }
+            .hoverEffect(.highlight)
             .padding(.horizontal)
             .padding(.bottom)
         }
@@ -259,7 +269,7 @@ struct ParsedItemRow: View {
             Spacer()
         }
         .padding(12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+        .glassEffect(.regular)
     }
     
     private func formatDate(_ date: Date) -> String {
@@ -277,12 +287,34 @@ struct WaveformView: View {
     @State private var bars: [CGFloat] = Array(repeating: 0.1, count: 30)
     
     var body: some View {
-        HStack(spacing: 3) {
-            ForEach(Array(bars.enumerated()), id: \.offset) { index, height in
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(isActive ? Color.red.opacity(0.7) : Color.gray.opacity(0.2))
-                    .frame(width: 4, height: max(4, height * 80))
-                    .animation(.spring(duration: 0.15), value: height)
+        ZStack {
+            RoundedRectangle(cornerRadius: 18)
+                .fill(
+                    MeshGradient(
+                        width: 2,
+                        height: 2,
+                        points: [
+                            SIMD2<Float>(0.0, 0.0), SIMD2<Float>(1.0, 0.0),
+                            SIMD2<Float>(0.0, 1.0), SIMD2<Float>(1.0, 1.0)
+                        ],
+                        colors: [
+                            Color.red.opacity(0.92),
+                            Color.orange.opacity(0.9),
+                            Color.pink.opacity(0.88),
+                            Color.blue.opacity(0.85)
+                        ]
+                    )
+                    .opacity(isActive ? 0.36 : 0.1)
+                )
+                .glassEffect(.regular)
+            
+            HStack(spacing: 3) {
+                ForEach(Array(bars.enumerated()), id: \.offset) { _, height in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(isActive ? Color.white.opacity(0.88) : Color.gray.opacity(0.22))
+                        .frame(width: 4, height: max(4, height * 80))
+                        .animation(.spring(duration: 0.15), value: height)
+                }
             }
         }
         .onChange(of: level) { _, newLevel in

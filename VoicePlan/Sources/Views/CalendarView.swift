@@ -28,6 +28,7 @@ struct CalendarView: View {
                     Image(systemName: "chevron.left")
                         .fontWeight(.semibold)
                 }
+                .hoverEffect(.highlight)
                 
                 Spacer()
                 
@@ -42,8 +43,10 @@ struct CalendarView: View {
                     Image(systemName: "chevron.right")
                         .fontWeight(.semibold)
                 }
+                .hoverEffect(.highlight)
             }
             .padding()
+            .glassEffect(.regular)
             
             // Weekday headers
             HStack(spacing: 0) {
@@ -106,14 +109,24 @@ struct CalendarView: View {
                 } else {
                     List(selectedDateItems) { item in
                         PlanItemRow(item: item)
+                            .scrollTransition { content, phase in
+                                content
+                                    .opacity(phase.isIdentity ? 1 : 0.86)
+                                    .scaleEffect(phase.isIdentity ? 1 : 0.985)
+                            }
                     }
                     .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .glassEffect(.regular)
                 }
             }
             
             Spacer()
         }
         .navigationTitle("Calendar")
+        #if os(visionOS)
+        .glassBackgroundEffect()
+        #endif
     }
     
     // MARK: - Helpers
@@ -207,5 +220,7 @@ struct DayCell: View {
             .opacity(hasItems ? 1 : 0)
         }
         .frame(height: 44)
+        .padding(.horizontal, 2)
+        .glassEffect(.regular)
     }
 }

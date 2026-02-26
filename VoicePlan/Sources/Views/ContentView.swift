@@ -15,66 +15,58 @@ struct ContentView: View {
     
     // MARK: - iOS/iPadOS/visionOS
     var iOSContent: some View {
-        ZStack(alignment: .bottom) {
-            TabView(selection: $selectedTab) {
-                NavigationStack {
-                    InboxView(listName: "Inbox")
-                }
-                .tabItem { Label("Inbox", systemImage: "tray.fill") }
-                .tag(0)
-                
-                NavigationStack {
-                    InboxView(listName: "Today")
-                }
-                .tabItem { Label("Today", systemImage: "star.fill") }
-                .tag(1)
-                
-                NavigationStack {
-                    CalendarView()
-                }
-                .tabItem { Label("Calendar", systemImage: "calendar") }
-                .tag(2)
-                
-                NavigationStack {
-                    InboxView(listName: "Upcoming")
-                }
-                .tabItem { Label("Upcoming", systemImage: "clock") }
-                .tag(3)
-                
-                NavigationStack {
-                    InboxView(listName: "Someday")
-                }
-                .tabItem { Label("Someday", systemImage: "archivebox") }
-                .tag(4)
+        TabView(selection: $selectedTab) {
+            NavigationStack {
+                InboxView(listName: "Inbox")
             }
-            .tint(Color(hex: "4A90D9"))
+            .tabItem { Label("Inbox", systemImage: "tray.fill") }
+            .tag(0)
             
-            // Floating record button
-            Button {
-                showRecordSheet = true
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.red, Color.red.opacity(0.85)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 62, height: 62)
-                        .shadow(color: .red.opacity(0.35), radius: 10, y: 4)
-                    
-                    Image(systemName: "mic.fill")
-                        .font(.title2)
-                        .foregroundStyle(.white)
-                }
+            NavigationStack {
+                InboxView(listName: "Today")
             }
-            .buttonStyle(.plain)
-            .offset(y: -30)
+            .tabItem { Label("Today", systemImage: "star.fill") }
+            .tag(1)
+            
+            NavigationStack {
+                CalendarView()
+            }
+            .tabItem { Label("Calendar", systemImage: "calendar") }
+            .tag(2)
+            
+            NavigationStack {
+                InboxView(listName: "Upcoming")
+            }
+            .tabItem { Label("Upcoming", systemImage: "clock") }
+            .tag(3)
+            
+            NavigationStack {
+                InboxView(listName: "Someday")
+            }
+            .tabItem { Label("Someday", systemImage: "archivebox") }
+            .tag(4)
         }
+        .tabViewStyle(.sidebarAdaptable)
+        .tint(Color(hex: "4A90D9"))
+        #if os(visionOS)
+        .glassBackgroundEffect()
+        .ornament(
+            visibility: .visible,
+            attachmentAnchor: .scene(.bottom),
+            contentAlignment: .center
+        ) {
+            recordButton
+                .padding(.bottom, 12)
+        }
+        #else
+        .overlay(alignment: .bottom) {
+            recordButton
+                .offset(y: -30)
+        }
+        #endif
         .sheet(isPresented: $showRecordSheet) {
             RecordView()
+                .presentationSizing(.form)
         }
     }
     
@@ -99,6 +91,9 @@ struct ContentView: View {
                         Label("Record", systemImage: "mic.fill")
                     }
                     .tint(.red)
+                    #if !os(macOS)
+                    .hoverEffect(.highlight)
+                    #endif
                 }
             }
         } detail: {
@@ -114,8 +109,35 @@ struct ContentView: View {
         .tint(Color(hex: "4A90D9"))
         .sheet(isPresented: $showRecordSheet) {
             RecordView()
+                .presentationSizing(.form)
                 .frame(minWidth: 500, minHeight: 600)
         }
+    }
+    
+    private var recordButton: some View {
+        Button {
+            showRecordSheet = true
+        } label: {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.red, Color.red.opacity(0.82)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 62, height: 62)
+                    .shadow(color: .red.opacity(0.35), radius: 10, y: 4)
+                
+                Image(systemName: "mic.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+            }
+        }
+        .buttonStyle(.plain)
+        .glassEffect(.circular)
+        .hoverEffect(.highlight)
     }
 }
 

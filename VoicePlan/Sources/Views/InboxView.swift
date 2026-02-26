@@ -37,8 +37,11 @@ struct InboxView: View {
                             .buttonStyle(.borderedProminent)
                             .tint(Color(hex: "4A90D9"))
                             .controlSize(.small)
+                            .hoverEffect(.highlight)
                     }
                 }
+                .padding(8)
+                .glassEffect(.regular)
             }
             
             // Active items
@@ -54,11 +57,17 @@ struct InboxView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 32)
+                    .glassEffect(.regular)
                 }
             } else {
                 Section("\(items.count) items") {
                     ForEach(items) { item in
                         PlanItemRow(item: item)
+                            .scrollTransition { content, phase in
+                                content
+                                    .opacity(phase.isIdentity ? 1 : 0.86)
+                                    .scaleEffect(phase.isIdentity ? 1 : 0.985)
+                            }
                     }
                     .onDelete { offsets in
                         for i in offsets { modelContext.delete(items[i]) }
@@ -71,6 +80,11 @@ struct InboxView: View {
                 Section("Completed (\(completedItems.count))") {
                     ForEach(completedItems.prefix(10)) { item in
                         PlanItemRow(item: item)
+                            .scrollTransition { content, phase in
+                                content
+                                    .opacity(phase.isIdentity ? 1 : 0.86)
+                                    .scaleEffect(phase.isIdentity ? 1 : 0.985)
+                            }
                     }
                     .onDelete { offsets in
                         for i in offsets { modelContext.delete(completedItems[i]) }
@@ -78,7 +92,13 @@ struct InboxView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.clear)
+        .glassEffect(.regular)
         .navigationTitle(listName)
+        #if os(visionOS)
+        .glassBackgroundEffect()
+        #endif
     }
     
     private func addItem() {
@@ -128,6 +148,7 @@ struct PlanItemRow: View {
                         : .secondary)
             }
             .buttonStyle(.plain)
+            .hoverEffect(.highlight)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
@@ -174,7 +195,9 @@ struct PlanItemRow: View {
             
             Spacer()
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 7)
+        .padding(.horizontal, 10)
+        .glassEffect(.regular)
     }
     
     private func formatDue(_ date: Date) -> String {
